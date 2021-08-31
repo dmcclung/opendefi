@@ -5,7 +5,7 @@ const DeFuturesMarket = artifacts.require("DeFuturesMarket");
  */
 contract("DeFuturesMarket", function (accounts) {
   it("should deploy without error", async function () {
-    await DeFuturesMarket.new(accounts[1]);
+    await DeFuturesMarket.deployed();
     return assert.isTrue(true);
   });
 });

@@ -28,8 +28,8 @@ contract DeFuturesMarket is IDeFuturesMarket {
     // Temporary: owner is set to what address deployed the market contract
     address private owner;
 
-    // Originator of collateral
-    address private collateralAddress;
+    // Borrower provides collateral
+    address private borrowerAddress;
 
     // Collateral required
     uint256 private collateralRequired;
@@ -45,26 +45,26 @@ contract DeFuturesMarket is IDeFuturesMarket {
     // TODO: May need to have the reverse mapping for other use cases
     mapping(address => mapping(uint256 => uint256)) public ownerShares;
 
-    constructor(address _collateralAddress) {
-        owner = msg.sender;
-        collateralAddress = _collateralAddress;
+    constructor() {
+        owner = msg.sender;        
     }
 
-    function initialize(uint256 _endTime, string calldata _question, uint256 _collateralRequired) external override returns (bool) {
+    function initialize(uint256 _endTime, string calldata _question, uint256 _collateralRequired, address _borrowerAddress) external override returns (bool) {
         require(owner == msg.sender, "Only the contract owner can initialize");
         require(_endTime > block.number, "End time must be a block height greater than the current height");
         require(_collateralRequired > 0, "Collateral required must be greater than 0");
 
         endTime = _endTime;
         question = _question;
-        collateralRequired = _collateralRequired;
+        borrowerAddress = _borrowerAddress;
+        collateralRequired = _collateralRequired;        
 
         isInitialized = true;
         return true;
     }
 
     function fund() external override payable returns (bool) {
-        require(collateralAddress == msg.sender, "Only the origination address can fund collateral");
+        require(borrowerAddress == msg.sender, "Only the borrower can fund collateral");
         require(msg.value > collateralRequired, "Insufficient value");
         require(isInitialized, "Market must be initialized before funding");
 
@@ -100,7 +100,7 @@ contract DeFuturesMarket is IDeFuturesMarket {
     function buy(uint256 _outcome) public payable override returns (uint256) {
         require(msg.value > 0, "Value required");
         require(msg.sender != owner, "Invalid msg sender");
-        require(msg.sender != collateralAddress, "Invalid msg sender");
+        require(msg.sender != borrowerAddress, "Invalid msg sender");
 
         // TODO: log events for all of these state transitions and 
         // buy etc
