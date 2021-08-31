@@ -8,5 +8,5 @@ abstract contract IDeFuturesMarket {
   function distributePayout() public virtual returns (bool);
   function estimatePayout() public virtual view returns (uint256);  
   function buy(uint256 _outcome) public payable virtual returns (uint256);  
-  function getOutcome() public virtual returns (uint256);
+  function getOutcome() external view virtual returns (uint256);
 }

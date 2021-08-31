@@ -16,6 +16,9 @@ contract DeFuturesMarket is IDeFuturesMarket {
     // Is market finalized ready to distribute payout and outcome determined?
     bool public isFinal;
 
+    // What happened at the end
+    uint256 public finalOutcome;
+
     // Market must be initialized before it can be funded
     bool public isInitialized = false;
 
@@ -79,6 +82,8 @@ contract DeFuturesMarket is IDeFuturesMarket {
         finalizationTime = block.number;
         isFinal = true;
 
+        // TODO: Determine how to set the final outcome
+
         return true;
     }
 
@@ -105,7 +110,8 @@ contract DeFuturesMarket is IDeFuturesMarket {
         return shares;
     }
 
-    function getOutcome() public override returns (uint256) {
-        return 1;
+    function getOutcome() external view override returns (uint256) {
+        require(isFinal, "Market is not final");
+        return finalOutcome;
     }
 }
