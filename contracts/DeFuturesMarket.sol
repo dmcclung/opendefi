@@ -51,6 +51,7 @@ contract DeFuturesMarket is IDeFuturesMarket {
 
     function initialize(uint256 _endTime, string calldata _question, uint256 _collateralRequired, address _borrowerAddress) external override returns (bool) {
         require(owner == msg.sender, "Only the contract owner can initialize");
+        require(owner != _borrowerAddress, "Owner cannot be borrower");
         require(_endTime > block.number, "End time must be a block height greater than the current height");
         require(_collateralRequired > 0, "Collateral required must be greater than 0");
 
