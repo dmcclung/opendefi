@@ -34,6 +34,14 @@ contract DeFuturesMarket is IDeFuturesMarket {
     // Collateral received
     uint256 private collateralReceived;
 
+    // Map of address to outcome shares
+    // buyer address => outcome => shares
+    // i.e. my address => yes => 100
+    //      my address => no => 20
+    // Each outcome is identified by a number, 0...x
+    // TODO: May need to have the reverse mapping for other use cases
+    mapping(address => mapping(uint256 => uint256)) public ownerShares;
+
     constructor(address _collateralAddress) {
         owner = msg.sender;
         collateralAddress = _collateralAddress;
@@ -82,8 +90,19 @@ contract DeFuturesMarket is IDeFuturesMarket {
         return 100000;
     }
 
+    // Returns the number of shares purchased for the specified outcome
+    // dependent on what the price of each share is
     function buy(uint256 _outcome) public payable override returns (uint256) {
-        return 1;
+        require(msg.value > 0, "Value required");
+        require(msg.sender != owner, "Invalid msg sender");
+        require(msg.sender != collateralAddress, "Invalid msg sender");
+
+        // TODO: log events for all of these state transitions and 
+        // buy etc
+
+        uint256 shares = msg.value;
+        ownerShares[msg.sender][_outcome] = shares;
+        return shares;
     }
 
     function getOutcome() public override returns (uint256) {
