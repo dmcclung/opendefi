@@ -37,6 +37,9 @@ contract DeFuturesMarket is IDeFuturesMarket {
     // Collateral received
     uint256 private collateralReceived;
 
+    // Start time on market
+    uint256 private startTime;
+
     // Map of address to outcome shares
     // buyer address => outcome => shares
     // i.e. my address => yes => 100
@@ -44,20 +47,30 @@ contract DeFuturesMarket is IDeFuturesMarket {
     // Each outcome is identified by a number, 0...x
     // TODO: May need to have the reverse mapping for other use cases
     mapping(address => mapping(uint256 => uint256)) public ownerShares;
+    
+    // Interest per block  
+    uint256 private interestPerBlock;
+
+    // How many blocks accrue interest?
+    uint256 private blockTerm;
 
     constructor() {
         owner = msg.sender;        
     }
 
-    function initialize(uint256 _endTime, string calldata _question, uint256 _collateralRequired, address _borrowerAddress) external override returns (bool) {
+    function initialize(uint256 _endTime, string calldata _question, uint256 _collateralRequired, address _borrowerAddress, uint256 _interestPerBlock, uint256 _blockTerm) external override returns (bool) {
         require(owner == msg.sender, "Only the contract owner can initialize");
         require(owner != _borrowerAddress, "Owner cannot be borrower");
         require(_endTime > block.number, "End time must be a block height greater than the current height");
         require(_collateralRequired > 0, "Collateral required must be greater than 0");
+        require(_interestPerBlock > 0, "Interest is required");
+        require(_blockTerm > 0, "Block term must be greater than 0");
 
         endTime = _endTime;
         question = _question;
+        blockTerm = _blockTerm;
         borrowerAddress = _borrowerAddress;
+        interestPerBlock = _interestPerBlock;
         collateralRequired = _collateralRequired;        
 
         isInitialized = true;
@@ -88,12 +101,25 @@ contract DeFuturesMarket is IDeFuturesMarket {
         return true;
     }
 
+    // TODO: This functions like withdrawal, msg.sender gets their payout
+    // transfered to their address or whatever address they specify
     function distributePayout() public override returns (bool) {
         return true;
     }
 
+    // TODO: This could estimate their payout
     function estimatePayout() public view override returns (uint256) {
         return 100000;
+    }    
+
+    // Total interest accrued on the contract, borrower must pay this interest
+    // back on or before settling the outcome of the market
+    function totalInterestAccrued() public view override returns (uint256) {
+        uint256 blocksAccrued = block.number - startTime;
+        if (blocksAccrued > blockTerm) {
+            blocksAccrued = blockTerm;
+        }
+        return blocksAccrued * interestPerBlock;
     }
 
     // Returns the number of shares purchased for the specified outcome
@@ -102,6 +128,7 @@ contract DeFuturesMarket is IDeFuturesMarket {
         require(msg.value > 0, "Value required");
         require(msg.sender != owner, "Invalid msg sender");
         require(msg.sender != borrowerAddress, "Invalid msg sender");
+        require(isFunded, "Market must be funded");
 
         // TODO: log events for all of these state transitions and 
         // buy etc
