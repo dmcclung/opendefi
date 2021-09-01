@@ -1,11 +1,11 @@
-const DeFuturesMarket = artifacts.require("DeFuturesMarket");
+const LoanPredictionMarket = artifacts.require("LoanPredictionMarket");
 
 /* 
  * See docs: https://www.trufflesuite.com/docs/truffle/testing/writing-tests-in-javascript
  */
-contract("DeFuturesMarket", function (accounts) {
+contract("LoanPredictionMarket", function (accounts) {
   it("should deploy without error", async function () {
-    await DeFuturesMarket.deployed();
+    await LoanPredictionMarket.deployed();
     return assert.isTrue(true);
   });
 });
