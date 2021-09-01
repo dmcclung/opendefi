@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-import "./IDeFuturesMarket.sol";
+import "./IPredictionMarket.sol";
 
-contract DeFuturesMarket is IDeFuturesMarket {
+contract LoanPredictionMarket is IPredictionMarket {
     // Temporary: replace with market metadata
     string public question;
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-abstract contract IDeFuturesMarket {
+abstract contract IPredictionMarket {
   function initialize(uint256 _endTime, string calldata _question, uint256 _collateralRequired, address _borrowerAddress, uint256 _interestPerBlock, uint256 _blockTerm) external virtual returns (bool);
   function fund() external virtual payable returns (bool);
   function finalize() public virtual returns (bool);  
